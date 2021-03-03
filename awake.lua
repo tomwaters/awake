@@ -160,6 +160,9 @@ function step()
         -- Audio engine out
         if params:get("output") == 1 or params:get("output") == 3 then
           skeys:on({name="tatak_piano",midi=note_num,velocity=120})
+          if params:get("output") == 1 then
+            table.insert(active_notes, note_num)
+          end
         elseif params:get("output") == 4 then
           crow.output[1].volts = (note_num-60)/12
           crow.output[2].execute()

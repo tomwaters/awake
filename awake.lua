@@ -30,7 +30,9 @@
 -- *toggle
 -- E2/E3 changes
 
-engine.name = 'PolyPerc'
+mxsamples=include("mx.samples/lib/mx.samples")
+engine.name="MxSamples"
+skeys=mxsamples:new()
 
 hs = include('lib/halfsecond')
 
@@ -117,8 +119,9 @@ function build_scale()
 end
 
 function all_notes_off()
-  if (params:get("output") == 2 or params:get("output") == 3) then
+  if (params:get("output") == 1 or params:get("output") == 2 or params:get("output") == 3) then
     for _, a in pairs(active_notes) do
+      skeys:off({name="tatak_piano",midi=a})
       midi_out_device:note_off(a, nil, midi_out_channel)
     end
   end
@@ -156,7 +159,7 @@ function step()
       if math.random(100) <= params:get("probability") then
         -- Audio engine out
         if params:get("output") == 1 or params:get("output") == 3 then
-          engine.hz(freq)
+          skeys:on({name="tatak_piano",midi=note_num,velocity=120})
         elseif params:get("output") == 4 then
           crow.output[1].volts = (note_num-60)/12
           crow.output[2].execute()
@@ -238,29 +241,6 @@ function init()
     min = 0, max = 100, default = 100,}
   params:add_separator()
 
-  cs_AMP = controlspec.new(0,1,'lin',0,0.5,'')
-  params:add{type="control",id="amp",controlspec=cs_AMP,
-    action=function(x) engine.amp(x) end}
-
-  cs_PW = controlspec.new(0,100,'lin',0,50,'%')
-  params:add{type="control",id="pw",controlspec=cs_PW,
-    action=function(x) engine.pw(x/100) end}
-
-  cs_REL = controlspec.new(0.1,3.2,'lin',0,1.2,'s')
-  params:add{type="control",id="release",controlspec=cs_REL,
-    action=function(x) engine.release(x) end}
-
-  cs_CUT = controlspec.new(50,5000,'exp',0,800,'hz')
-  params:add{type="control",id="cutoff",controlspec=cs_CUT,
-    action=function(x) engine.cutoff(x) end}
-
-  cs_GAIN = controlspec.new(0,4,'lin',0,1,'')
-  params:add{type="control",id="gain",controlspec=cs_GAIN,
-    action=function(x) engine.gain(x) end}
-  
-  cs_PAN = controlspec.new(-1,1, 'lin',0,0,'')
-  params:add{type="control",id="pan",controlspec=cs_PAN,
-    action=function(x) engine.pan(x) end}
 
   hs.init()
   
